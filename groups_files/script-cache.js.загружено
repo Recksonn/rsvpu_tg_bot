@@ -1,0 +1,477 @@
+$(window).ready(function(){
+    //Загрузчик
+    $('.loader-wrap').animate({
+        opacity:0},400,function(){
+        $(this).hide();
+    });
+});
+$(document).ready(function(){
+    
+     // v_date
+    var query_string = {};
+    var query = window.location.search.substring(1);
+    var vars = query.split("&");
+    for (var i=0;i<vars.length;i++) {
+      var pair = vars[i].split("=");
+          // If first entry with this name
+      if (typeof query_string[pair[0]] === "undefined") {
+        query_string[pair[0]] = decodeURIComponent(pair[1]);
+          // If second entry with this name
+      } else if (typeof query_string[pair[0]] === "string") {
+        var arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
+        query_string[pair[0]] = arr;
+          // If third or later entry with this name
+      } else {
+        query_string[pair[0]].push(decodeURIComponent(pair[1]));
+      }
+    } 
+    var v_date = "";
+    if (typeof query_string['v_date'] != 'undefined'){
+        v_date = query_string['v_date'];
+    }
+    
+    
+    //Materialize
+    $('.button-collapse').sideNav({
+        menuWidth: 260, // Default is 240
+        edge: 'left', // Choose the horizontal origin
+        closeOnClick: true // Closes side-nav on <a> clicks, useful for Angular/Meteor
+    });
+    if ($('.index-page-select-forms').length){
+        //$('.index-page-select-forms').after('<div class="developer"><a class="waves-effect waves-light" href="creators.php">Разработчики</a><br><a class="waves-effect waves-light" href="http://www.rsvpu.ru/">Полная версия сайта</a></div>');
+    }
+    //Последняя просмотренная группа
+    if ($('.last-group').length){
+        if ($('.last-group').attr('article').length>0){
+            var lastGroup = $('.last-group').attr('article');
+            var lastGroupName = 0;
+            $('#selectGroupNumber>div .li').each(function(){
+               var nowGroup = $(this).attr('data');
+               if (nowGroup == lastGroup){
+                   lastGroupName = $(this).text();
+                   $('.index-page-select-forms').after('<a href="?v_gru='+lastGroup+'" class="last-grop-is waves-effect waves-light">Последняя просмотренная группа <span>'+lastGroupName+'</span></a>');
+               }
+            });
+        }
+    }
+    /**/
+    //Поиск
+    $('.search').keyup(function(){
+        var textInput = $(this).val();
+        if (textInput.length > 0){
+            $(this).siblings('.divSelection').find('.li').hide();
+            $(this).siblings('.divSelection').find('.li').each(function(){
+                var textOption  = $(this).text(); 
+                if(textOption.toLowerCase().indexOf(textInput.toLowerCase()) != -1 ) {
+                    $(this).show();
+                }
+    
+            });
+        }else{
+            $(this).siblings('.divSelection').find('.li').show();
+        }
+        
+    });
+    
+    
+    //Работа с навигацией
+    $('.selectFunction>div').click(function(){
+        var id = $(this).attr('data');
+        if (id == 'viewCorps'){
+        }else{
+            $(' #'+ id).addClass('active');
+            $('.selectBox').addClass('active');
+            $('body,html').animate({scrollTop: 0}, 200);
+            $('.button-collapse').sideNav('hide');
+        }
+                
+    });
+    $('.selectBox>div').each(function(){
+        var title = $(this).find('.divSelection .li').eq(0).text();
+        $(this).find('.divSelection .li').eq(0).remove();
+        $(this).find('.divSelection').before('<h3>' + title + '</h3>');
+    });
+    $('.back-list').click(function(){
+        $('.selectBox').removeClass('active');
+        setTimeout(function(){
+            $('.selectBox div').removeClass('active');
+        },500);
+        
+    });   
+    
+    
+    
+    $('.nameGroup').click(function(){
+        var type = window.location.search;
+        type = type.split('?');
+        type = type[1].split('=');
+        if (type[0]== 'v_gru'){
+            var id = $('.selectFunction div').eq(0).attr('data');
+            $(' #'+ id).addClass('active'); 
+            $('.selectBox').addClass('active'); 
+            $('body,html').animate({scrollTop: 0}, 200);
+        }
+        if (type[0]== 'v_prep'){
+            var id = $('.selectFunction div').eq(1).attr('data');
+            $(' #'+ id).addClass('active');
+            $('.selectBox').addClass('active');
+            $('body,html').animate({scrollTop: 0}, 200);
+            //alert ('Этот раздел пока в разработке');
+        }
+        if (type[0]== 'v_aud'){
+            var id = $('.selectFunction div').eq(2).attr('data');
+            $(' #'+ id).addClass('active');
+            $('.selectBox').addClass('active'); 
+            $('body,html').animate({scrollTop: 0}, 200);
+        }
+    });    
+    $('.divSelection>.li').click(function(){
+        if ($(this).attr('data').length){
+            var value = $(this).attr('data');
+            var host = window.location.host;
+            var type = $(this).parents('.divSelection').attr('data-type');
+            window.location.href = "http://"+host+"/mobile/?"+type+"="+value;
+            $('.loader-wrap').show().animate({opacity:1},400);
+        }
+    });
+    /*
+    $('a').click(function(){
+        if ($(this).attr('href').length >2 || $(this).attr('href') == "/mobile/"){
+            if ($(this).parents().hasClass('developer') || $(this).hasClass('developer')){}else{
+                $('.loader-wrap').show().animate({opacity:1},400);
+            }
+        }
+    });
+    
+    */
+    
+    
+    
+    //Использование старых скриптов
+    
+    // Работа с датой
+    
+    var today = '';
+	function checkscope() {
+		$('.day_date td').each(function(){
+			if ($(this).attr('style')){
+				$(this).addClass('todayDay');
+				today = $(this).find('p').text();
+			}
+		});
+	}
+	checkscope();
+    
+	// Определили дату в переменную
+    
+    function monthName(e){
+        var todayMass = e.split('.');
+        var month = 0;
+        if(todayMass[1] == "01"){month="Января";}
+        else if (todayMass[1] == "02"){month="Февраля";}
+        else if (todayMass[1] == "03"){month="Марта";}
+        else if (todayMass[1] == "04"){month="Апреля";}
+        else if (todayMass[1] == "05"){month="Мая";}
+        else if (todayMass[1] == "06"){month="Июня";}
+        else if (todayMass[1] == "07"){month="Июля";}
+        else if (todayMass[1] == "08"){month="Августа";}
+        else if (todayMass[1] == "09"){month="Сентября";}
+        else if (todayMass[1] == "10"){month="Октября";}
+        else if (todayMass[1] == "11"){month="Ноября";}
+        else if (todayMass[1] == "12"){month="Декабря";}
+        return month;
+        alert (month);
+    }
+    
+    
+        //alert (todayMass[0] + ' - ' + month);
+    
+    var N = 0;
+    var numberToday = 0
+    if (v_date != ""){
+        var v_dateIndex = 0;
+        var v_dateX = 0;
+        $('.day_date .left').each(function(){
+            var text = $(this).text();
+            if(text.toLowerCase().indexOf(v_date.toLowerCase()) != -1 ) {
+                numberToday = v_dateX;
+            }
+            v_dateX ++;
+            return numberToday;
+        });
+    }else{
+        var eq = 0;
+        $('.disciplina').each(function(){
+            if (N%2 == 0){
+                if ($(this).css('backgroundColor') == "rgb(252, 251, 235)"){
+                   numberToday = eq;
+                }
+                eq++;
+            }
+            N ++;
+            return numberToday;
+        });
+    }
+
+    
+    var countZan = 0;
+    $('.disciplina_cont').each(function(){
+        if ($(this).find('.disciplina_info').text() == '-'){
+            $(this).remove();
+        }else{
+            countZan = countZan+1;
+        }
+    });
+    
+    //Определяем в переменные расписание на 12 дней
+    var mass = [
+        $('.disciplina').eq(0).html(),
+        $('.disciplina').eq(2).html(),
+        $('.disciplina').eq(4).html(),
+        $('.disciplina').eq(6).html(),
+        $('.disciplina').eq(8).html(),
+        $('.disciplina').eq(10).html(),
+        $('.disciplina').eq(1).html(),
+        $('.disciplina').eq(3).html(),
+        $('.disciplina').eq(5).html(),
+        $('.disciplina').eq(7).html(),
+        $('.disciplina').eq(9).html(),
+        $('.disciplina').eq(11).html(),
+    ]
+    //Определение дат на 12 дней
+    var date = [
+        'Понедельник, ' + $('.day_date').eq(0).find('td').eq(0).text(),
+        'Вторник, ' + $('.day_date').eq(1).find('td').eq(0).text() ,
+        'Среда, ' + $('.day_date').eq(2).find('td').eq(0).text(),
+        'Четверг, ' + $('.day_date').eq(3).find('td').eq(0).text(),
+        'Пятница, ' + $('.day_date').eq(4).find('td').eq(0).text(),
+        'Суббота, ' + $('.day_date').eq(5).find('td').eq(0).text(),
+        'Понедельник, ' + $('.day_date').eq(0).find('td').eq(1).text(),
+        'Вторник, ' + $('.day_date').eq(1).find('td').eq(1).text(),
+        'Среда, ' + $('.day_date').eq(2).find('td').eq(1).text(),
+        'Четверг, ' + $('.day_date').eq(3).find('td').eq(1).text(),
+        'Пятница, ' + $('.day_date').eq(4).find('td').eq(1).text(),
+        'Суббота, ' + $('.day_date').eq(5).find('td').eq(1).text()
+    ]
+    //Выпихиваем сплошное расписание на 2 недели
+    for (var x=0; x<=mass.length-1;   x++){
+        monthName(date[x]);
+        if (mass[x]){
+            if (x < numberToday){}else{
+                if (mass[x].length > 250){
+                    $('.content').append('<div class="dateBlock"><div class="dateToday">'+date[x]+'</div><div class="tableRasp">'+ mass[x] +'</div></div>');
+                }
+            }
+        }
+    }
+   
+    /*
+    //Раскидываем преподов и аудитории
+	$('.tableRasp .disciplina_info').each(function(){
+        if ($(this).find('p').length == 2){
+            var prepod1 = $(this).find('p').eq(0).find('nobr').eq(1).text();
+            //Ссылка на преподавателя 1
+            var prepod1Href = $(this).find('p').eq(0).find('nobr').eq(1).find('a').attr('href');
+            var prepod1Href = prepod1Href.split('&');
+            var prepod1Href = prepod1Href[1];
+            
+            var auditoria1 = $(this).find('p').eq(0).find('nobr').eq(0).text();
+            //Ссылка на аудиторию 1
+            var auditoria1Href = $(this).find('p').eq(0).find('nobr').eq(0).find('a').attr('href');
+            var auditoria1Href = auditoria1Href.split('&');
+            var auditoria1Href = auditoria1Href[1];
+            
+            var subgroup1 = parseInt($(this).find('p').eq(0).find('nobr').eq(2).text().replace(/\D+/g,""));
+            if (isNaN(subgroup1)){subgroup1 = "";}else{
+                subgroup1 = '<b>'+subgroup1 + '</b> п/г';
+            }
+            var prepod2 = $(this).find('p').eq(1).find('nobr').eq(1).text();
+            //Ссылка на преподавателя 2
+            var prepod2Href = $(this).find('p').eq(1).find('nobr').eq(1).find('a').attr('href');
+            var prepod2Href = prepod2Href.split('&');
+            var prepod2Href = prepod2Href[1];
+            
+            var auditoria2 = $(this).find('p').eq(1).find('nobr').eq(0).text();
+            //Ссылка на аудиторию 2
+            var auditoria2Href = $(this).find('p').eq(1).find('nobr').eq(0).find('a').attr('href');
+            var auditoria2Href = auditoria2Href.split('&');
+            var auditoria2Href = auditoria2Href[1];
+            
+            var subgroup2 = parseInt($(this).find('p').eq(1).find('nobr').eq(2).text().replace(/\D+/g,""));
+            if (isNaN(subgroup2)){subgroup2 = "";}else{
+                subgroup2 = '<b>'+subgroup2 + '</b> п/г';
+            }
+            
+            var typepred = $(this).find('p').eq(0).text();
+            typepred = typepred.split('(');
+            var namepred = typepred[0];
+            
+            //Второй предмет - сравнение один и тот же ли предмет
+            var typepred2 = $(this).find('p').eq(1).text();
+            typepred2 = typepred2.split('(');
+            var namepred2 = typepred2[0];
+            
+            
+            
+            typepred = typepred[1].split(')');
+            typepred = typepred[0];
+            
+            var typepred2 = typepred2[1].split(')');
+            var typepred2 = typepred2[0];
+            
+            
+            
+            var tepepredColor = 0;
+            if (typepred == 'лекция'){tepepredColor = 1;}else if(typepred == 'практика'){tepepredColor = 2;}else if (typepred == 'лаб. работа'){tepepredColor=3;}
+            
+            $(this).prepend('<div class="predmet-type color-'+tepepredColor+'">'+typepred+'</div>');
+            
+            $(this).find('nobr').remove();
+            $(this).find('p').eq(1).remove();
+            $(this).find('p').text(namepred);
+            
+            $(this).append('<div class="col-2 group-'+subgroup1+'"><div class="prepod view-link" article="преподавателя '+prepod1+'?" data="'+prepod1Href+'"><i class="fa fa-graduation-cap" aria-hidden="true"></i>'+ prepod1 +'</div>'+
+            '<div class="auditioria view-link" data="'+auditoria1Href+'" article="аудитории '+auditoria1+'?"><i class="fa fa-university" aria-hidden="true"></i>'+ auditoria1 +' <span class="pg">'+subgroup1+'</span></div></div>');
+            if (typepred2 != typepred){
+                var tepepredColor = 0;
+                if (typepred == 'лекция'){tepepredColor = 1;}else if(typepred2 == 'практика'){tepepredColor = 2;}else if (typepred2 == 'лаб. работа'){tepepredColor=3;}
+                $(this).append('<div class="predmet-type typepred2 color-'+tepepredColor+'">'+typepred2+'</div>');
+                }
+            if (namepred != namepred2){
+                $(this).append('<p class="predmet-2">' + namepred2 + '</p>');
+            }
+            $(this).append('<div class="col-2 group-'+subgroup2+'"><div class="prepod view-link" data="'+prepod2Href+'" article="преподавателя '+prepod2+'?"><i class="fa fa-graduation-cap" aria-hidden="true"></i>'+ prepod2 +'</div>'+
+            '<div class="auditioria view-link" data="'+auditoria2Href+'" article="аудитории '+auditoria2+'?"><i class="fa fa-university" aria-hidden="true"></i>'+ auditoria2 +' <span class="pg">'+subgroup2+'</span></div></div>');
+        }else{
+            var prepod = $(this).find('nobr').eq(1).text();
+            //Ссылка на преподавателя
+            var prepodHref = $(this).find('nobr').eq(1).find('a').attr('href');
+            var prepodHref = prepodHref.split('&');
+            var prepodHref = prepodHref[1];
+            
+		    var auditoria = $(this).find('nobr').eq(0).text();
+            //Ссылка на аудиторию
+            var auditoriaHref = $(this).find('nobr').eq(0).find('a').attr('href');
+            var auditoriaHref = auditoriaHref.split('&');
+            var auditoriaHref = auditoriaHref[1];
+            
+            var subgroup = parseInt($(this).find('p').eq(0).find('nobr').eq(2).text().replace(/\D+/g,""));
+            if (isNaN(subgroup)){subgroup = "";}else{
+                subgroup = '<b>'+subgroup + '</b> п/г';
+            }
+            
+            $(this).find('nobr').remove();
+            
+            var typepred = $(this).text();
+            typepred = typepred.split('(');
+            var namepred = typepred[0];
+            typepred = typepred[1].split(')');
+            typepred = typepred[0];
+            
+            var tepepredColor = 0;
+            if (typepred == 'лекция'){tepepredColor = 1;}else if(typepred == 'практика'){tepepredColor = 2;}else if (typepred == 'лаб. работа'){tepepredColor=3;}
+            
+            $(this).prepend('<div class="predmet-type color-'+tepepredColor+'">'+typepred+'</div>');
+            $(this).find('p').text(namepred);
+            $(this).append('<div class="prepod view-link" article="преподавателя '+prepod+'?" data="'+prepodHref+'"><i class="fa fa-graduation-cap" aria-hidden="true"></i>'+ prepod +'</div>');
+            $(this).append('<div class="auditioria view-link" article="аудитории '+auditoria+'?" data="'+auditoriaHref+'"><i class="fa fa-university" aria-hidden="true"></i>'+ auditoria +'<span class="pg">'+subgroup+'</span></div>');
+        }
+        $(this).siblings('.disciplina_time').find('span').remove();
+        var time = $(this).siblings('.disciplina_time').text();
+        var endTime = 0;
+        if (time == ' 08:00'){endTime = " 09:35"}else if (time == ' 09:45'){endTime = " 11:20"}  else if (time == ' 11:30'){endTime = " 13:05"} else if (time == ' 12:00'){endTime = " 13:35"} else if (time == ' 13:45'){endTime = " 15:20"}else if (time == ' 15:30'){endTime = " 17:05"}else if (time == ' 17:15'){endTime = " 18:50"}else if (time == ' 19:00'){endTime = " 20:35"}
+        
+        $(this).siblings('.disciplina_time').find('p').after('<div class="end-time">'+ endTime +'</div>');
+	});
+    */
+    //Замена иконок в расписании
+    /*
+    if (window.location.search == ''){}else{
+        var type = window.location.search;
+        type = type.split('?');
+        type = type[1].split('=');
+        if (type[0] == "v_aud"){
+            //Иконки
+            $('.prepod').find('i').remove();
+            $('.prepod').prepend('<i class="fa fa-users" aria-hidden="true"></i>');
+            $('.auditioria').find('i').remove();
+            $('.auditioria').prepend('<i class="fa fa-graduation-cap" aria-hidden="true"></i>');
+        }
+        if (type[0] == "v_prep"){
+            $('.nameGroup').addClass('prepod-title');
+            $('.prepod').find('i').remove();
+            $('.prepod').prepend('<i class="fa fa-users" aria-hidden="true"></i>');
+        }
+    }
+    */
+    $('.view-link').click(function(){
+        //Только для групп
+        var type = window.location.search;
+        type = type.split('?');
+        type = type[1].split('=');
+        if (type[0] == "v_gru"){
+            $('#modal1').openModal();
+            var article = $(this).attr('article');
+            var data = $(this).attr('data');
+            $('#modal1').find('#article').text(article);
+            $('#modal1').find('.data-button').attr('data',data);
+        }
+        if (type[0] == "v_prep"){
+            $('#modal1').openModal();
+            var article = $(this).attr('article');
+            var data = $(this).attr('data');
+            $('#modal1').find('#article').text(article);
+            $('#modal1').find('.data-button').attr('data',data);
+        }
+    });
+    $('a.view-link').click(function(){
+        //Только для групп
+        var type = window.location.search;
+        type = type.split('?');
+        type = type[1].split('=');
+        if (type[0] == "v_prep"){
+            $('#modal1').openModal();
+            var article = $(this).attr('article');
+            var data = $(this).attr('data');
+            $('#modal1').find('#article').text(article);
+            $('#modal1').find('.data-button').attr('data',data);
+        }
+    });
+    $('.data-button').click(function(){
+        var data = $(this).attr('data');
+        var host = window.location.host;
+        window.location.href = "http://"+host+"/mobile/?"+data;
+        $('.loader-wrap').show().animate({opacity:1},400);
+        $('#modal1').closeModal();
+    });
+    $('#calendar-void').click(function(){
+        $('.datepicker').trigger('focus');
+        return false;
+    });
+    $('.datepicker').pickadate({
+        min:today,
+        max: 150
+    });
+    
+
+    
+});
+
+
+
+function ahaha(){
+    var date = $('.picker__input').val();
+    if (date == ""){}else{
+        window.location.search = jQuery.query.set("v_date", date);
+        $('.loader-wrap').show().animate({opacity:1},400);
+    }  
+}
+function clearDate(){
+    window.location.search = jQuery.query.set("v_date", '');
+    $('.loader-wrap').show().animate({opacity:1},400);
+}
+
+
+
+
+ 
