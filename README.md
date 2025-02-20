@@ -4,4 +4,4 @@ To run, use:
 - cd rsvpu_tg_bot/
 - pip install -r requirements.txt
 - python main.py
-Open main.py and enter your telegram bot api before run it!
+# Open main.py and enter your telegram bot api before run it!
